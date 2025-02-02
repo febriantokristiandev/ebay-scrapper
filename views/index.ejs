@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eBay Scraper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 50px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+        input {
+            padding: 8px;
+            margin: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .loading {
+            display: none;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>eBay Scraper</h2>
+        <form id="scrapeForm">
+            <label for="search">Search for Products:</label>
+            <input type="text" id="search" name="search" placeholder="Enter product name" required>
+            <label for="pages">Number of Pages:</label>
+            <input type="number" id="pages" name="pages" min="1" value="1">
+            <button type="submit" id="scrapeBtn">Scrape</button>
+            <div class="loading" id="loading">Scraping in progress...</div>
+        </form>
+        <table id="results">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        document.getElementById('scrapeForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const search = document.getElementById('search').value;
+            const pages = document.getElementById('pages').value;
+            const button = document.getElementById('scrapeBtn');
+            const loading = document.getElementById('loading');
+            button.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch(`/scrape?search=${search}&pages=${pages}`);
+                const data = await response.json();
+                const tableBody = document.querySelector('#results tbody');
+                tableBody.innerHTML = '';
+                data.forEach(item => {
+                    const row = `<tr>
+                        <td>${item.productName}</td>
+                        <td>${item.productPrice}</td>
+                        <td>${item.productDescription}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                alert('Error fetching data');
+            }
+            
+            button.disabled = false;
+            loading.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
